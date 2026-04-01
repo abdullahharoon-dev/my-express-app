@@ -68,7 +68,7 @@ In this project:
 
 Express gives you request data in a few common places:
 
-- `req.params` for values like `/hello/burhan`
+- `req.params` for values like `/hello/abdullah`
 - `req.query` for values like `/search?q=node`
 - `req.body` for JSON data sent in a POST request
 
@@ -78,7 +78,6 @@ In the browser:
 
 - `http://localhost:3000/`
 - `http://localhost:3000/about`
-- `http://localhost:3000/hello/Burhan`
 - `http://localhost:3000/search?q=express`
 
 In Postman or Thunder Client:
@@ -89,8 +88,8 @@ In Postman or Thunder Client:
 
 ```json
 {
-  "name": "Burhan",
-  "email": "burhan@example.com"
+  "name": "Abdullah",
+  "email": "abdullah@example.com"
 }
 ```
 
