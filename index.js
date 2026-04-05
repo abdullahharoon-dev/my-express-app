@@ -82,7 +82,7 @@ app.post("/add", async (req, res) => {
     });
     res.json({
       result,
-      message: "Record added to database successfully",
+      message: "Addition record added to database successfully",
       id: record.id,
     });
   } catch (error) {
@@ -90,6 +90,27 @@ app.post("/add", async (req, res) => {
   }
 });
 
+app.post("/subtract", async (res, req) => {
+  const { num1, num2 } = req.body;
+  const result = num1 - num2;
+  try {
+    const record = await History.create({
+      value1: num1,
+      value2: num2,
+      operation: "subtract",
+      result: result,
+    });
+    res.json({
+      result,
+      message: "Subtraction record successfully added to database",
+      id: record.id,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/*
 app.post("/subtract", (req, res) => {
   const num1 = req.body.num1;
   const num2 = req.body.num2;
@@ -98,13 +119,12 @@ app.post("/subtract", (req, res) => {
   const operation = "subtract";
   db.run(
     `INSERT INTO history (value1, value2, operation, result)
-     VALUES (?, ?, ?, ?)`,
+    VALUES (?, ?, ?, ?)`,
     [num1, num2, operation, subtract],
     function (err) {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
-
       res.json({
         result: subtract,
         message: "Saved to database",
@@ -113,6 +133,7 @@ app.post("/subtract", (req, res) => {
     },
   );
 });
+*/
 
 app.post("/multiply", (req, res) => {
   const num1 = req.body.num1;
