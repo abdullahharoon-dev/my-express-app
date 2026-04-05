@@ -90,7 +90,7 @@ app.post("/add", async (req, res) => {
   }
 });
 
-app.post("/subtract", async (res, req) => {
+app.post("/subtract", async (req, res) => {
   const { num1, num2 } = req.body;
   const result = num1 - num2;
   try {
@@ -133,7 +133,6 @@ app.post("/subtract", (req, res) => {
     },
   );
 });
-*/
 
 app.post("/multiply", (req, res) => {
   const num1 = req.body.num1;
@@ -143,7 +142,7 @@ app.post("/multiply", (req, res) => {
   const operation = "multiply";
   db.run(
     `INSERT INTO history (value1, value2, operation, result)
-     VALUES (?, ?, ?, ?)`,
+    VALUES (?, ?, ?, ?)`,
     [num1, num2, operation, multiply],
     function (err) {
       if (err) {
@@ -156,6 +155,27 @@ app.post("/multiply", (req, res) => {
       });
     },
   );
+});
+*/
+
+app.post("/multiply", async (req, res) => {
+  const { num1, num2 } = req.body;
+  const result = num1 * num2;
+  try {
+    const record = await History.create({
+      value1: num1,
+      value2: num2,
+      operation: "multiply",
+      result: result,
+    });
+    res.json({
+      result: result,
+      message: "Multiplication record successfully added to Database",
+      id: record.id,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.post("/divide", (req, res) => {
