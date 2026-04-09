@@ -1,10 +1,14 @@
 import express from "express";
+import cors from "cors";
+
 import sequelize from "./db.js";
 import History from "./models/history.js";
 
 const app = express(); //call  Express like a function and name it "app"
 const port = Number(process.env.PORT) || 4000;
 
+app.use(cors());
+app.use(express.json()); //“Hey, whenever someone sends data in JSON format,
 app.get("/", (req, res) => {
   //For Get requests to the home URL /, do the following
   //req: info from client (URL, headers, body, etc)
@@ -12,10 +16,8 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.use(express.json()); //“Hey, whenever someone sends data in JSON format,
 // please read and understand it automatically.”
 // .use is the middleware first this request will be executed then the follwoing code will be executed
-
 app.post("/add", async (req, res) => {
   const { num1, num2 } = req.body;
   const result = num1 + num2;
@@ -84,6 +86,7 @@ app.post("/divide", async (req, res) => {
       value1: num1,
       value2: num2,
       operation: "divide",
+      result: result,
     });
     res.json({
       result: result,
@@ -91,7 +94,7 @@ app.post("/divide", async (req, res) => {
       id: record.id,
     });
   } catch (error) {
-    res.status(500).json({ error: error });
+    res.status(500).json({ error: error.message });
   }
 });
 
