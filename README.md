@@ -1,113 +1,136 @@
-# Express.js Beginner Guide
+# Calculator API
 
-This project is now set up as a small Express learning playground.
+A simple Express + PostgreSQL REST API that performs basic arithmetic operations and stores every calculation in a database. Built as a learning project to explore Node.js, Express, Sequelize, and Postgres.
 
-## What Express Is
+## Tech Stack
 
-Express is a web framework for Node.js. It helps you build:
+- **Node.js** with ES modules
+- **Express 5** — web framework
+- **PostgreSQL** — database
+- **Sequelize** — ORM for Postgres
+- **dotenv** — loads environment variables from `.env`
+- **cors** — enables cross-origin requests
+- **nodemon** (dev) — auto-restarts the server on file changes
 
-- websites
-- APIs
-- backend servers
+## Project Structure
 
-In this project:
+```
+.
+├── index.js              # entry point: sets up Express, middleware, DB connection
+├── db.js                 # Sequelize Postgres connection (reads from .env)
+├── routes/
+│   ├── calculator.js     # POST /add, /subtract, /multiply, /divide
+│   └── history.js        # GET /history
+├── models/
+│   └── history.js        # Sequelize model for stored calculations
+├── .env.example          # template for required environment variables
+├── .gitignore
+└── package.json
+```
 
-- `index.js` creates the server
-- routes decide what happens for each URL
-- middleware runs before routes or between them
+## Prerequisites
 
-## How To Run
+- Node.js (v18 or newer recommended)
+- PostgreSQL installed and running locally
+- A Postgres database created (default name: `calculator_db`) and a Postgres role with access to it
 
+## Setup
+
+1. **Clone the repo**
+   ```bash
+   git clone https://github.com/<your-username>/my-express-app.git
+   cd my-express-app
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Create your `.env` file** from the template
+   ```bash
+   cp .env.example .env
+   ```
+   Then open `.env` and fill in your local Postgres values.
+
+4. **Make sure your Postgres database exists.** Inside `psql`:
+   ```sql
+   CREATE DATABASE calculator_db;
+   ```
+
+5. **Start the server**
+   ```bash
+   npm run dev    # with auto-reload (nodemon)
+   # or
+   npm start      # plain node
+   ```
+
+   You should see:
+   ```
+   Connected to PostgreSQL
+   Database synced
+   App listening on port 4000
+   ```
+
+## Environment Variables
+
+All configuration lives in `.env` (which is gitignored). See `.env.example` for the full list.
+
+| Variable      | Purpose                                  | Example          |
+| ------------- | ---------------------------------------- | ---------------- |
+| `DB_NAME`     | Postgres database name                   | `calculator_db`  |
+| `DB_USER`     | Postgres role to log in as               | `abdullahharoon` |
+| `DB_PASSWORD` | Password for that role (empty if none)   |                  |
+| `DB_HOST`     | Postgres host                            | `localhost`      |
+| `DB_DIALECT`  | Sequelize dialect                        | `postgres`       |
+| `PORT`        | Port the API listens on (default `4000`) | `4000`           |
+
+## API Endpoints
+
+The server runs on `http://localhost:4000` by default.
+
+### Health check
+
+`GET /` → `Hello World!`
+
+### Arithmetic operations
+
+All four take a JSON body with two numbers, perform the operation, and persist the result in the `history` table.
+
+| Method | Path        | Body                          | Response                              |
+| ------ | ----------- | ----------------------------- | ------------------------------------- |
+| POST   | `/add`      | `{ "num1": 5, "num2": 3 }`    | `{ result: 8, message, id }`          |
+| POST   | `/subtract` | `{ "num1": 10, "num2": 4 }`   | `{ result: 6, message, id }`          |
+| POST   | `/multiply` | `{ "num1": 6, "num2": 7 }`    | `{ result: 42, message, id }`         |
+| POST   | `/divide`   | `{ "num1": 20, "num2": 5 }`   | `{ result: 4, message, id }`          |
+
+**Example request** (using `curl`):
 ```bash
-npm start
+curl -X POST http://localhost:4000/add \
+  -H "Content-Type: application/json" \
+  -d '{"num1": 5, "num2": 3}'
 ```
 
-Open `http://localhost:3000` in your browser.
+### History
 
-## Core Concepts In This Project
+| Method | Path       | Description                                                |
+| ------ | ---------- | ---------------------------------------------------------- |
+| GET    | `/history` | Returns all past calculations, newest first.               |
 
-### 1. Create an Express app
-
-```js
-const express = require('express');
-const app = express();
-```
-
-This creates your Express application.
-
-### 2. Start the server
-
-```js
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
-```
-
-This tells the app to listen for requests on a port.
-
-### 3. Routes
-
-Routes are URLs your server responds to.
-
-- `GET /` shows the homepage
-- `GET /about` returns JSON
-- `GET /hello/:name` uses a route parameter
-- `GET /search?q=express` uses a query parameter
-- `POST /users` reads JSON from the request body
-
-### 4. Middleware
-
-Middleware is a function that runs before your route finishes.
-
-In this project:
-
-- `express.json()` reads JSON request bodies
-- the logger middleware prints every request in the terminal
-
-### 5. Request data
-
-Express gives you request data in a few common places:
-
-- `req.params` for values like `/hello/abdullah`
-- `req.query` for values like `/search?q=node`
-- `req.body` for JSON data sent in a POST request
-
-## Routes To Try
-
-In the browser:
-
-- `http://localhost:3000/`
-- `http://localhost:3000/about`
-- `http://localhost:3000/search?q=express`
-
-In Postman or Thunder Client:
-
-- Method: `POST`
-- URL: `http://localhost:3000/users`
-- Body type: JSON
-
+**Response shape:**
 ```json
 {
-  "name": "Abdullah",
-  "email": "abdullah@example.com"
+  "count": 2,
+  "data": [
+    {
+      "id": 2,
+      "value1": 10,
+      "value2": 4,
+      "operation": "subtract",
+      "result": 6,
+      "createdAt": "...",
+      "updatedAt": "..."
+    }
+  ]
 }
 ```
-
-## What To Learn Next
-
-After you understand this file, the next good topics are:
-
-1. `app.put()` and `app.delete()`
-2. Express Router
-3. serving HTML and static files
-4. connecting Express to MongoDB or MySQL
-5. building a full REST API
-
-## Small Practice Tasks
-
-Try these yourself:
-
-1. Add a `/contact` route
-2. Add a `/sum?a=5&b=7` route that returns the total
-3. Add validation so `/users` also checks for a password
-4. Move routes into a separate file later when you feel comfortable
