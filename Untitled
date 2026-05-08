@@ -1,0 +1,62 @@
+1. Create a new modal component
+Create src/components/Occasions/AddOccasionModal.tsx. Skeleton:
+
+
+import { useForm } from 'react-hook-form';
+import { CommonModal } from '@/components/Modal';
+import { Button } from '@/components/Button';
+import { Box } from '@/components/Box';
+import { Stack } from '@/components/Layouts';
+import { Text } from '@/components/Text';
+import { IconContainer } from '@/components/Shared/IconContainer';
+import { CloseIcon } from '@/components/Shared/CloseIcon';
+// reuse Input + FormField — they're exported from AddQuestionModal
+import { FormField } from '@/components/Settings/AddQuestionModal';
+
+interface FormValues {
+  nameEn: string;
+  nameAr: string;
+  messageEn: string;
+  messageAr: string;
+}
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreated: () => void; // to refetch the list
+}
+
+export const AddOccasionModal = ({ isOpen, onClose, onCreated }: Props) => {
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>();
+
+  const onSubmit = (values: FormValues) => {
+    // call GiftWrapping.createOccasion(values) via useMutation here
+    // on success: reset(); onCreated(); onClose();
+  };
+
+  return (
+    <CommonModal isOpen={isOpen} onClose={onClose} width={500}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* header with title + close */}
+        {/* 4 FormField + register('nameEn', { required: true }) etc. */}
+        <Button type="submit" variant="filled">Save</Button>
+      </form>
+    </CommonModal>
+  );
+};
+The Input styled component and FormField wrapper already exist in AddQuestionModal.tsx:31 and AddQuestionModal.tsx:60 — either import them (export Input if not already exported) or replicate them in a shared location.
+
+2. Wire the button in pages/occasions.tsx
+Add const [isOpen, setIsOpen] = useState(false);
+Set onClick={() => setIsOpen(true)} on the Button at occasions.tsx:34-47
+Render <AddOccasionModal isOpen={isOpen} onClose={() => setIsOpen(false)} onCreated={refetch} />
+Destructure refetch from useQuery so the table refreshes after creation
+3. Add the create method
+In src/models/GiftWrapping.ts, add a createOccasion(payload) method (mirror whatever pattern getGiftWrappingConfig uses). Then call it via useMutation inside the modal — see AddQuestionModal.tsx:229-245 for the success/error/reset/close pattern.
+
+Validation
+Each input registers like:
+
+
+<Input {...register('nameEn', { required: 'Required' })} placeholder="Name English" />
+{errors.nameEn && <Text color="static.red">{errors.nameEn.message}</Text>}
